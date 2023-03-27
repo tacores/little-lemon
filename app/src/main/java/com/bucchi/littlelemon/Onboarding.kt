@@ -1,10 +1,7 @@
 package com.bucchi.littlelemon
 
-import android.app.AlertDialog
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,7 +12,6 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,11 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bucchi.littlelemon.component.Header
 
 @Composable
 fun Onboarding(navController: NavController, sharedPreferences: SharedPreferences) {
@@ -48,28 +44,6 @@ fun Onboarding(navController: NavController, sharedPreferences: SharedPreference
             )
         }
         InputFields(navController, sharedPreferences)
-
-    }
-}
-
-@Composable
-fun Header() {
-    val context = LocalContext.current
-    val inputStream = context.assets.open("logo.png")
-    val logo = BitmapFactory.decodeStream(inputStream).asImageBitmap()
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.Center)
-    )
-    {
-        Image(
-            bitmap = logo,
-            contentDescription = "Logo",
-            modifier = Modifier
-                .width(200.dp)
-                .height(80.dp)
-        )
     }
 }
 
