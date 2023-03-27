@@ -10,9 +10,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.bucchi.littlelemon.ui.theme.LittleLemonTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val sharedPreferences by lazy { getSharedPreferences("LittleLemon", MODE_PRIVATE) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -23,7 +27,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     //Greeting("Android")
-                    Onboarding()
+                    val navController = rememberNavController()
+                    Navigation(navController, sharedPreferences)
                 }
             }
         }

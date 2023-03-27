@@ -1,6 +1,9 @@
 package com.bucchi.littlelemon
 
+import android.app.AlertDialog
+import android.content.SharedPreferences
 import android.graphics.BitmapFactory
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,9 +28,10 @@ import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 
 @Composable
-fun Onboarding() {
+fun Onboarding(navController: NavController, sharedPreferences: SharedPreferences) {
     Column {
         Header()
         Box(
@@ -43,22 +47,8 @@ fun Onboarding() {
                 color = Color(0xFFFFFFFF)
             )
         }
-        InputFields()
-        Button(
-            onClick = { },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp, 50.dp, 20.dp, 0.dp),
-            colors = ButtonDefaults.textButtonColors(
-                backgroundColor = Color(0xFFF4CE14),
-                contentColor = Color(0xFF333333),
-                disabledContentColor = Color(0xFFAFAFAF)
-            )
-        ) {
-            Text(
-                text = "Register",
-            )
-        }
+        InputFields(navController, sharedPreferences)
+
     }
 }
 
@@ -84,7 +74,8 @@ fun Header() {
 }
 
 @Composable
-fun InputFields() {
+fun InputFields(navController: NavController, sharedPreferences: SharedPreferences) {
+    val context = LocalContext.current
     var firstName by remember { mutableStateOf(TextFieldValue("")) }
     var lastName by remember { mutableStateOf(TextFieldValue("")) }
     var email by remember { mutableStateOf(TextFieldValue("")) }
@@ -130,10 +121,42 @@ fun InputFields() {
         modifier = Modifier
             .padding(10.dp, 0.dp, 0.dp, 0.dp)
             .clip(shape = RoundedCornerShape(6.dp)))
+
+    Button(
+        onClick = {
+                  if (firstName.text.isBlank() ||
+                          lastName.text.isBlank() ||
+                          email.text.isBlank() ) {
+                      Toast.makeText(context, "Registration unsuccessful. Please enter all data.", Toast.LENGTH_SHORT).show()
+                  } else {
+                      var edit = sharedPreferences.edit()
+                      edit.putString("firstName", firstName.text)
+                      edit.putString("lastName", lastName.text)
+                      edit.putString("email", email.text)
+                      edit.putBoolean("isLogged", true)
+                      edit.apply()
+
+                      Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
+                      navController.navigate(Home.route)
+                  }
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp, 50.dp, 20.dp, 0.dp),
+        colors = ButtonDefaults.textButtonColors(
+            backgroundColor = Color(0xFFF4CE14),
+            contentColor = Color(0xFF333333),
+            disabledContentColor = Color(0xFFAFAFAF)
+        )
+    ) {
+        Text(
+            text = "Register",
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun OnboardingPreview() {
-    Onboarding()
+    //Onboarding()
 }
