@@ -185,6 +185,8 @@ fun MenuItems(database: AppDatabase, searchText: TextFieldValue, categoryFilterT
                 categoryFilterText,
                 ignoreCase = true
             )
+        }.sortedBy {
+            it.title
         } ) { index, it ->
             Divider(
                 color = Color.LightGray, thickness = 1.dp,
