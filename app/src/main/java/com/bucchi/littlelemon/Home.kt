@@ -34,12 +34,24 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 @Composable
 fun Home(navController: NavController, database: AppDatabase) {
     var searchText by remember { mutableStateOf(TextFieldValue("")) }
+    val onChangeSearch: (TextFieldValue) -> (Unit) = {
+        searchText = it
+    }
+
+    var categoryFilterText by remember { mutableStateOf("") }
+    val onChangeCategoryFilter: (String) -> (Unit) = {
+        if (categoryFilterText == it) {
+            categoryFilterText = ""
+        } else {
+            categoryFilterText = it
+        }
+    }
 
     Column {
         HomeNavbar(navController)
-        Hero(searchText)
-        MenuBreakdown()
-        MenuItems(database, searchText)
+        Hero(searchText, onChangeSearch)
+        MenuBreakdown(categoryFilterText, onChangeCategoryFilter)
+        MenuItems(database, searchText, categoryFilterText)
     }
 }
 
@@ -54,7 +66,6 @@ fun HomeNavbar(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            //.wrapContentSize(Alignment.Center)
     )
     {
         Image(
@@ -72,14 +83,16 @@ fun HomeNavbar(navController: NavController) {
                 .width(70.dp)
                 .height(70.dp)
                 .padding(0.dp, 0.dp, 10.dp, 0.dp)
-                .clickable {}
+                .clickable {
+                    navController.navigate(Profile.route)
+                }
                 .align(Alignment.CenterEnd),
         )
     }
 }
 
 @Composable
-fun Hero(searchText: TextFieldValue) {
+fun Hero(searchText: TextFieldValue, onChangeSearch: (TextFieldValue) -> (Unit)) {
 
     val context = LocalContext.current
     val inputStream = context.assets.open("hero.png")
@@ -95,8 +108,6 @@ fun Hero(searchText: TextFieldValue) {
             Text("Little Lemon",
                 color = Color(0xFFF4CE14),
                 fontSize = 36.sp,
-                //modifier = Modifier
-                //    .padding(10.dp, 3.dp, 0.dp, 0.dp)
             )
             Row() {
                 Column() {
@@ -104,8 +115,6 @@ fun Hero(searchText: TextFieldValue) {
                         "Chicago",
                         color = Color(0xFFFFFFFF),
                         fontSize = 28.sp,
-                        //modifier = Modifier
-                        //    .padding(10.dp, 3.dp, 0.dp, 0.dp)
                     )
                     Text(
                         "We are a family-owned\n" +
@@ -127,7 +136,9 @@ fun Hero(searchText: TextFieldValue) {
                     contentScale = ContentScale.FillWidth)
             }
             TextField(value = searchText,
-                onValueChange = {  },
+                placeholder = { Text("Enter Search Phrase") },
+                singleLine = true,
+                onValueChange = { onChangeSearch(it) },
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color(0xFFFFFFFF),
                 ),
@@ -140,7 +151,7 @@ fun Hero(searchText: TextFieldValue) {
 }
 
 @Composable
-fun MenuBreakdown() {
+fun MenuBreakdown(categoryFilterText: String, onChangeCategoryFilter: (String) -> (Unit)) {
     Box() {
         Column() {
             Text("ORDER FOR DELIVERY!",
@@ -149,17 +160,17 @@ fun MenuBreakdown() {
                 modifier = Modifier
                     .padding(5.dp, 15.dp, 0.dp, 0.dp))
             Row() {
-                FilterButton("Starters")
-                FilterButton("Mains")
-                FilterButton("Desserts")
-                FilterButton("Drinks")
+                FilterButton("Starters", categoryFilterText, onChangeCategoryFilter)
+                FilterButton("Mains", categoryFilterText, onChangeCategoryFilter)
+                FilterButton("Desserts", categoryFilterText, onChangeCategoryFilter)
+                FilterButton("Drinks", categoryFilterText, onChangeCategoryFilter)
             }
         }
     }
 }
 
 @Composable
-fun MenuItems(database: AppDatabase, searchText: TextFieldValue) {
+fun MenuItems(database: AppDatabase, searchText: TextFieldValue, categoryFilterText: String) {
 
     val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
 
@@ -167,6 +178,11 @@ fun MenuItems(database: AppDatabase, searchText: TextFieldValue) {
         itemsIndexed(databaseMenuItems.filter {
             it.title.contains(
                 searchText.text,
+                ignoreCase = true
+            )
+        }.filter {
+            it.category.contains(
+                categoryFilterText,
                 ignoreCase = true
             )
         } ) { index, it ->
@@ -186,12 +202,19 @@ fun MenuItems(database: AppDatabase, searchText: TextFieldValue) {
 }
 
 @Composable
-fun FilterButton(str: String) {
-    Button(onClick = {},
+fun FilterButton(str: String, categoryFilterText: String, onChangeCategoryFilter: (String) -> (Unit)) {
+    Button(
+        onClick = {
+            onChangeCategoryFilter(str)
+        },
         modifier = Modifier
             .padding(5.dp, 5.dp, 0.dp, 5.dp),
         colors = ButtonDefaults.textButtonColors(
-            backgroundColor = Color(0xFFAFAFAF),
+            backgroundColor = if (str == categoryFilterText) {
+                Color(0xFFF4CE14)
+            } else {
+                Color(0xFFAFAFAF)
+            },
             contentColor = Color(0xFF495E57),
             disabledContentColor = Color(0xFFAFAFAF)),
     ) {
